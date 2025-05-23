@@ -106,6 +106,87 @@ async function run() {
 		})
 
 
+		// Increase LIKE By Clicking Heart icon from details page
+		// Increase LIKE By Clicking Heart icon from details page
+		// app.put('/recipes/:id', async (req, res) => {
+		// 	const { id } = req.params;
+
+		// 	if (!MongoClient.Types.ObjectId.isValid(id)) {
+		// 		return res.status(400).json({ error: 'Invalid recipe ID' });
+		// 	}
+
+		// 	try {
+		// 		const updatedRecipe = await Recipe.findByIdAndUpdate(
+		// 			id,
+		// 			{ $inc: { LikeCount: 1 } }, // 
+		// 			{ new: true }
+		// 		);
+		// 		if (!updatedRecipe) {
+		// 			return res.status(404).json({ error: 'Recipe not found' });
+		// 		}
+		// 		console.log(updatedRecipe)
+		// 		res.json(updatedRecipe);
+		// 	} catch (err) {
+		// 		res.status(500).json({ error: 'Failed to update like count' });
+		// 	}
+		// });
+
+		// app.put('/recipes/:id/like', async (req, res) => {
+		// 	const { id } = req.params;
+
+		// 	try {
+		// 		if (!ObjectId.isValid(id)) {
+		// 			return res.status(400).json({ error: 'Invalid recipe ID' });
+		// 		}
+
+		// 		const updatedRecipe = await recipesCollection.findOneAndUpdate(
+		// 			{ _id: new ObjectId(id) },
+		// 			{ $inc: { LikeCount: 1 } },
+		// 			{ returnDocument: 'after' } // returns the updated document
+		// 		);
+
+		// 		if (!updatedRecipe.value) {
+		// 			return res.status(404).json({ error: 'Recipe not found' });
+		// 		}
+
+		// 		res.json(updatedRecipe.value);
+		// 	} catch (err) {
+		// 		console.error("Update error:", err);
+		// 		res.status(500).json({ error: 'Failed to update like count' });
+		// 	}
+		// });
+
+		app.put('/recipes/:id/like', async (req, res) => {
+			const { id } = req.params;
+
+			try {
+				if (!ObjectId.isValid(id)) {
+					return res.status(400).json({ error: 'Invalid recipe ID' });
+				}
+
+				const filter = { _id: new ObjectId(id) };
+				const update = { $inc: { LikeCount: 1 } };
+
+				// Update the like count
+				const result = await recipesCollection.updateOne(filter, update);
+
+				if (result.matchedCount === 0) {
+					return res.status(404).json({ error: 'Recipe not found' });
+				}
+
+				// Fetch updated recipe to send new like count
+				const updatedRecipe = await recipesCollection.findOne(filter);
+				res.send(updatedRecipe);
+
+			} catch (err) {
+				console.error("Update error:", err);
+				res.status(500).json({ error: 'Failed to update like count' });
+			}
+		});
+
+
+
+
 
 		//user related APIs
 		//Get All User
