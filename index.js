@@ -43,8 +43,8 @@ async function run() {
 		})
 
 
-		//Find Single Coffee By ID
-		app.get('/coffees/:id', async (req, res) => {
+		//Find Single recipes By ID
+		app.get('/recipes/:id', async (req, res) => {
 			const id = req.params.id;
 			const query = { _id: new ObjectId(id) }
 			const result = await recipesCollection.findOne(query);
@@ -71,10 +71,9 @@ async function run() {
 
 
 
-		//Post / Save Coffee Method
+		//Post / Save recipes Method
 		app.post('/recipes', async (req, res) => {
 			const newCoffee = req.body;
-			//console.log(newCoffee);
 
 			const result = await recipesCollection.insertOne(newCoffee);
 			res.send(result);
