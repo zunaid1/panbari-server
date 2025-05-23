@@ -52,6 +52,25 @@ async function run() {
 		})
 
 
+		// Find All recipes by Added me. Filtered with  "userEmail" feild. 
+		app.get('/recipesByEmail', async (req, res) => {
+			const userEmail = req.query.userEmail;
+
+			if (!userEmail) {
+				return res.status(400).send({ error: 'userEmail query parameter is required' });
+			}
+
+			try {
+				const result = await recipesCollection.find({ userEmail: userEmail }).toArray();
+				res.send(result);
+			} catch (error) {
+				console.error('Error fetching recipes:', error);
+				res.status(500).send({ error: 'Internal server error' });
+			}
+		});
+
+
+
 		//Post / Save Coffee Method
 		app.post('/recipes', async (req, res) => {
 			const newCoffee = req.body;
@@ -64,7 +83,7 @@ async function run() {
 
 
 		//Update
-		app.put('/coffees/:id', async (req, res) => {
+		app.put('/recipes/:id', async (req, res) => {
 			const id = req.params.id;
 			const filter = { _id: new ObjectId(id) }
 			const options = { upsert: true };
@@ -79,8 +98,8 @@ async function run() {
 		})
 
 
-		//Delete Coffee
-		app.delete('/coffees/:id', async (req, res) => {
+		//Delete recipes
+		app.delete('/recipes/:id', async (req, res) => {
 			const id = req.params.id;
 			const query = { _id: new ObjectId(id) }
 			const result = await recipesCollection.deleteOne(query);
