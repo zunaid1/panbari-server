@@ -43,6 +43,26 @@ async function run() {
 		})
 
 
+
+
+		// Find the recipe with the highest LikeCount
+		app.get('/recipes/top-liked', async (req, res) => {
+			try {
+				const result = await recipesCollection
+					.find()
+					.sort({ LikeCount: -1 })
+					.limit(6) // Top 5
+					.toArray();
+
+				res.send(result);
+			} catch (error) {
+				console.error('Error fetching top liked recipes:', error);
+				res.status(500).send({ error: 'Internal Server Error' });
+			}
+		});
+
+
+
 		//Find Single recipes By ID
 		app.get('/recipes/:id', async (req, res) => {
 			const id = req.params.id;
