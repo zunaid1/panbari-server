@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -93,9 +94,9 @@ async function run() {
 
 		//Post / Save recipes Method
 		app.post('/recipes', async (req, res) => {
-			const newCoffee = req.body;
+			const newRecipe = req.body;
 
-			const result = await recipesCollection.insertOne(newCoffee);
+			const result = await recipesCollection.insertOne(newRecipe);
 			res.send(result);
 		})
 
@@ -106,9 +107,9 @@ async function run() {
 			const id = req.params.id;
 			const filter = { _id: new ObjectId(id) }
 			const options = { upsert: true };
-			const updatedCoffee = req.body;
+			const updatedRecipe = req.body;
 			const updatedDoc = {
-				$set: updatedCoffee
+				$set: updatedRecipe
 			}
 
 			const result = await recipesCollection.updateOne(filter, updatedDoc, options);
@@ -124,6 +125,37 @@ async function run() {
 			const result = await recipesCollection.deleteOne(query);
 			res.send(result);
 		})
+
+
+		app.put('/recipes/:id/like', async (req, res) => {
+			const { id } = req.params;
+
+			try {
+				if (!ObjectId.isValid(id)) {
+					return res.status(400).json({ error: 'Invalid recipe ID' });
+				}
+
+				const filter = { _id: new ObjectId(id) };
+				const update = { $inc: { LikeCount: 1 } };
+
+				// Update the like count
+				const result = await recipesCollection.updateOne(filter, update);
+
+				if (result.matchedCount === 0) {
+					return res.status(404).json({ error: 'Recipe not found' });
+				}
+
+				// Fetch updated recipe to send new like count
+				const updatedRecipe = await recipesCollection.findOne(filter);
+				res.send(updatedRecipe);
+
+			} catch (err) {
+				console.error("Update error:", err);
+				res.status(500).json({ error: 'Failed to update like count' });
+			}
+		});
+
+
 
 
 		// Increase LIKE By Clicking Heart icon from details page
@@ -175,38 +207,6 @@ async function run() {
 		// 		res.status(500).json({ error: 'Failed to update like count' });
 		// 	}
 		// });
-
-		app.put('/recipes/:id/like', async (req, res) => {
-			const { id } = req.params;
-
-			try {
-				if (!ObjectId.isValid(id)) {
-					return res.status(400).json({ error: 'Invalid recipe ID' });
-				}
-
-				const filter = { _id: new ObjectId(id) };
-				const update = { $inc: { LikeCount: 1 } };
-
-				// Update the like count
-				const result = await recipesCollection.updateOne(filter, update);
-
-				if (result.matchedCount === 0) {
-					return res.status(404).json({ error: 'Recipe not found' });
-				}
-
-				// Fetch updated recipe to send new like count
-				const updatedRecipe = await recipesCollection.findOne(filter);
-				res.send(updatedRecipe);
-
-			} catch (err) {
-				console.error("Update error:", err);
-				res.status(500).json({ error: 'Failed to update like count' });
-			}
-		});
-
-
-
-
 
 		//user related APIs
 		//Get All User
